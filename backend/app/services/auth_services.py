@@ -17,7 +17,7 @@ from app.database.schemas import TokenData
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = settings.ALGORITHM
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Não foi possível validar as credenciais, faça o login novamente.",
@@ -27,9 +27,9 @@ credentials_exception = HTTPException(
 def autenticar_usuario(email: str, senha: str, db: Session = Depends(get_db)):
     user = get_usuario_by_email(db, email)
     if not user:
-        return False
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="usuario não encontrado")
     if not verify_password(senha, user.senha):
-        return False
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="senha incorreta")
     return user
 
 
@@ -43,6 +43,11 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+def create_refresh_token(data: dict):
+    expire = datetime.now(timezone.utc)  + timedelta(days=7)
+    to_encode = data.copy()
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 async def get_current_usuario(
     token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db)
@@ -62,3 +67,10 @@ async def get_current_usuario(
 
 async def get_current_usuario_ativo(current_user: Usuario = Depends(get_current_usuario)):
     return current_user
+
+def verify_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except jwt.JWTError:
+        return None

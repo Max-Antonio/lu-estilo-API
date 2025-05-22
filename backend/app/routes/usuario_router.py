@@ -9,7 +9,6 @@ from app.database.schemas import UsuarioSchema, UsuarioCreate
 from app.services.usuario_services import get_usuarios, create_usuario, get_usuario, delete_usuario
 
 usuario_router = APIRouter(
-    prefix='/usuarios',
     tags=['Usuarios']
 )
 
@@ -42,8 +41,3 @@ def usuario_delete(usuario_id: int, db: Session = Depends(get_db)):
 
     delete_usuario(db, db_usuario.id)
     return {"message": "usuario deleted"}
-
-
-@usuario_router.post("/", response_model=UsuarioSchema)
-def usuario_post(usuario: UsuarioCreate, db:Session = Depends(get_db)):
-    return create_usuario(db, usuario)

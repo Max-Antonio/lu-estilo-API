@@ -1,20 +1,20 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from datetime import timedelta
 from typing import Annotated
-from app.database.schemas import Token
+from app.database.schemas import Token, TokenRefreshRequest, TokenResponse, UsuarioCreate, UsuarioSchema
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from app.services.auth_services import autenticar_usuario, create_access_token
+from app.services.auth_services import autenticar_usuario, create_access_token, create_refresh_token, verify_token
 from app.database.database import get_db
+from app.services.usuario_services import create_usuario
 
 auth_router = APIRouter(
-    prefix='/auth',
     tags=['Auth'],
 )
 
 
-@auth_router.post('/token')
+@auth_router.post('/login')
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db)
@@ -32,3 +32,32 @@ async def login_for_access_token(
     )
 
     return Token(access_token=access_token, token_type="bearer")
+
+
+@auth_router.post("/register", response_model=UsuarioSchema)
+def usuario_post(usuario: UsuarioCreate, db:Session = Depends(get_db)):
+    return create_usuario(db, usuario)
+
+@auth_router.post("/refresh-token")
+def refresh_token(token_data: TokenRefreshRequest):
+    payload = verify_token(token_data.refresh_token)
+    if not payload:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid refresh token"
+        )
+    
+    user_id = payload.get("sub")
+    if user_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token payload"
+        )
+
+    new_access_token = create_access_token({"sub": user_id})
+    new_refresh_token = create_refresh_token({"sub": user_id}) 
+
+    return TokenResponse(
+        access_token=new_access_token,
+        refresh_token=new_refresh_token
+    )
