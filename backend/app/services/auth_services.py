@@ -1,0 +1,64 @@
+from datetime import datetime, timedelta, timezone
+from typing import Annotated
+
+import jwt
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from pydantic import ValidationError
+from sqlalchemy.orm import Session
+
+from app.config import settings
+from app.database.database import get_db
+from app.database.models import Usuario
+from app.services.usuario_services import get_usuario_by_email
+from app.utils.auth_utils import verify_password
+from app.database.schemas import TokenData
+
+SECRET_KEY = settings.SECRET_KEY
+ALGORITHM = settings.ALGORITHM
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
+credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Não foi possível validar as credenciais, faça o login novamente.",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+def autenticar_usuario(email: str, senha: str, db: Session = Depends(get_db)):
+    user = get_usuario_by_email(db, email)
+    if not user:
+        return False
+    if not verify_password(senha, user.senha):
+        return False
+    return user
+
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+async def get_current_usuario(
+    token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db)
+):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email = payload.get("sub")
+        if not email:
+            raise credentials_exception
+        token_data = TokenData(email=email)
+    except (jwt.InvalidTokenError, ValidationError):
+        raise credentials_exception
+    usuario = get_usuario_by_email(db, email=token_data.email)
+    if not usuario:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, 'Usuario não encontrado')
+    return usuario
+
+async def get_current_usuario_ativo(current_user: Usuario = Depends(get_current_usuario)):
+    return current_user
