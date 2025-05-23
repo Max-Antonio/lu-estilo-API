@@ -1,9 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.database.database import SessionDep
+from app.database.models import Usuario
 from app.database.schemas import ClienteCreate, ClientePublic, ClienteUpdate
+from app.services.auth_services import get_current_usuario_ativo
 from app.services.cliente_services import create_cliente, get_cliente, get_clientes, update_cliente
 from app.services.usuario_services import create_usuario, get_usuario_by_email
 
@@ -18,12 +20,17 @@ def cliente_list(
     nome: Annotated[str | None, Query(description='Filtro por nome')] = None,
     email: Annotated[str | None, Query(description='Filtro por email')] = None,
     db: SessionDep,
+    current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> list[ClientePublic]:
     return get_clientes(db, skip, limit, nome, email)
 
 
 @cliente_router.post('/')
-def cliente_post(cliente_data: ClienteCreate, db: SessionDep) -> ClientePublic:
+def cliente_post(
+    cliente_data: ClienteCreate,
+    db: SessionDep,
+    current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
+) -> ClientePublic:
     usuario_existente = get_usuario_by_email(db, cliente_data.email)
     if usuario_existente:
         raise HTTPException(
@@ -39,7 +46,9 @@ def cliente_post(cliente_data: ClienteCreate, db: SessionDep) -> ClientePublic:
 
 
 @cliente_router.get('/{id}')
-def cliente_get(id: int, db: SessionDep) -> ClientePublic:
+def cliente_get(
+    id: int, db: SessionDep, current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)]
+) -> ClientePublic:
     cliente = get_cliente(db, id)
     if not cliente:
         raise HTTPException(
@@ -51,7 +60,12 @@ def cliente_get(id: int, db: SessionDep) -> ClientePublic:
 
 
 @cliente_router.put('/{id}')
-def cliente_put(id: int, cliente_data: ClienteUpdate, db: SessionDep) -> ClientePublic:
+def cliente_put(
+    id: int,
+    cliente_data: ClienteUpdate,
+    db: SessionDep,
+    current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
+) -> ClientePublic:
     cliente = get_cliente(db, id)
     if not cliente:
         raise HTTPException(
@@ -65,7 +79,9 @@ def cliente_put(id: int, cliente_data: ClienteUpdate, db: SessionDep) -> Cliente
 
 
 @cliente_router.delete('/{id}')
-def cliente_delete(id: int, db: SessionDep) -> None:
+def cliente_delete(
+    id: int, db: SessionDep, current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)]
+) -> None:
     cliente = get_cliente(db, id)
     if not cliente:
         raise HTTPException(

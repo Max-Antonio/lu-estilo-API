@@ -12,7 +12,9 @@ usuario_router = APIRouter(tags=['Usuarios'])
 
 
 @usuario_router.get('/')
-def usuarios_list(db: SessionDep) -> list[UsuarioPublic]:
+def usuarios_list(
+    db: SessionDep, current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)]
+) -> list[UsuarioPublic]:
     return get_usuarios(db)
 
 
@@ -24,7 +26,11 @@ def usuario_list(
 
 
 @usuario_router.get('/{usuario_id}')
-def usuario_info(usuario_id: int, db: SessionDep) -> UsuarioPublic:
+def usuario_info(
+    usuario_id: int,
+    db: SessionDep,
+    current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
+) -> UsuarioPublic:
     db_usuario = get_usuario(db, usuario_id)
     if not db_usuario:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='usuario não encontrado')
@@ -32,7 +38,11 @@ def usuario_info(usuario_id: int, db: SessionDep) -> UsuarioPublic:
 
 
 @usuario_router.delete('/{usuario_id}')
-def usuario_delete(usuario_id: int, db: SessionDep):
+def usuario_delete(
+    usuario_id: int,
+    db: SessionDep,
+    current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
+):
     db_usuario = get_usuario(db, usuario_id)
     if db_usuario is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='usuario não encontrado')
