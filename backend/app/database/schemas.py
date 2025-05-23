@@ -81,7 +81,6 @@ class ClienteCreate(ClienteBase, UsuarioCreate):
 
 
 class ClienteUpdate(BaseModel):
-    cpf: str | None = None
     telefone: str | None = None
     endereco: str | None = None
 

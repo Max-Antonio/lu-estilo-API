@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordBearer
 from pydantic import ValidationError
 
 from app.config import settings
-from app.database.database import SessionDep, get_db
+from app.database.database import SessionDep
 from app.database.models import Usuario
 from app.database.schemas import TokenData
 from app.services.usuario_services import get_usuario_by_email
@@ -52,7 +52,8 @@ def create_refresh_token(data: dict):
 
 
 async def get_current_usuario(
-    token: Annotated[str, Depends(oauth2_scheme)], db: SessionDep,
+    token: Annotated[str, Depends(oauth2_scheme)],
+    db: SessionDep,
 ) -> Usuario:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -68,7 +69,9 @@ async def get_current_usuario(
     return usuario
 
 
-async def get_current_usuario_ativo(current_user: Usuario = Depends(get_current_usuario)) -> Usuario:
+async def get_current_usuario_ativo(
+    current_user: Usuario = Depends(get_current_usuario),
+) -> Usuario:
     return current_user
 
 

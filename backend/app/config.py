@@ -20,5 +20,8 @@ class Settings(BaseSettings):
     SECRET_KEY: str = secrets.token_urlsafe(32)
     ALGORITHM: str = 'HS256'
 
+    # Senha padrão para testes
+    DEFAULT_TEST_PASSWORD: str = 'password8888'
+
 
 settings = Settings()

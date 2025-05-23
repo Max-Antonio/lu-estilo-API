@@ -18,7 +18,7 @@ def get_usuario_by_email(db: SessionDep, email: str) -> Usuario:
     return db.exec(select(Usuario).filter(Usuario.email == email)).first()
 
 
-def create_usuario(db: SessionDep, usuario: UsuarioCreate) -> Usuario:
+def post_usuario(db: SessionDep, usuario: UsuarioCreate) -> Usuario:
     db_usuario = Usuario(
         email=str(usuario.email),
         nome=usuario.nome,

@@ -18,7 +18,7 @@ from app.services.auth_services import (
     create_refresh_token,
     verify_token,
 )
-from app.services.usuario_services import create_usuario
+from app.services.usuario_services import post_usuario
 
 auth_router = APIRouter(
     tags=['Auth'],
@@ -48,7 +48,7 @@ async def login_for_access_token(
 
 @auth_router.post('/register', response_model=UsuarioPublic)
 def usuario_post(usuario: UsuarioCreate, db: SessionDep):
-    return create_usuario(db, usuario)
+    return post_usuario(db, usuario)
 
 
 @auth_router.post('/refresh-token')

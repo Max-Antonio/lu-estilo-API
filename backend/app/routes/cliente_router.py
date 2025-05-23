@@ -6,8 +6,13 @@ from app.database.database import SessionDep
 from app.database.models import Usuario
 from app.database.schemas import ClienteCreate, ClientePublic, ClienteUpdate
 from app.services.auth_services import get_current_usuario_ativo
-from app.services.cliente_services import create_cliente, get_cliente, get_clientes, update_cliente
-from app.services.usuario_services import create_usuario, get_usuario_by_email
+from app.services.cliente_services import (
+    get_cliente,
+    get_clientes,
+    post_cliente,
+    update_cliente,
+)
+from app.services.usuario_services import get_usuario_by_email, post_usuario
 
 cliente_router = APIRouter(tags=['Clientes'])
 
@@ -38,16 +43,18 @@ def cliente_post(
             detail='email já utilizado',
         )
 
-    usuario = create_usuario(db, cliente_data)
+    usuario = post_usuario(db, cliente_data)
 
-    cliente = create_cliente(db, usuario.id, cliente_data)
+    cliente = post_cliente(db, usuario.id, cliente_data)
 
     return cliente
 
 
 @cliente_router.get('/{id}')
 def cliente_get(
-    id: int, db: SessionDep, current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)]
+    id: int,
+    db: SessionDep,
+    current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> ClientePublic:
     cliente = get_cliente(db, id)
     if not cliente:
@@ -80,7 +87,9 @@ def cliente_put(
 
 @cliente_router.delete('/{id}')
 def cliente_delete(
-    id: int, db: SessionDep, current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)]
+    id: int,
+    db: SessionDep,
+    current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> None:
     cliente = get_cliente(db, id)
     if not cliente:

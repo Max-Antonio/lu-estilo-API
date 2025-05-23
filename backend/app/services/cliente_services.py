@@ -28,7 +28,7 @@ def get_cliente(db: SessionDep, cliente_id: int) -> Cliente:
     return cliente
 
 
-def create_cliente(db: SessionDep, usuario_id: int, cliente_data: ClienteCreate) -> Cliente:
+def post_cliente(db: SessionDep, usuario_id: int, cliente_data: ClienteCreate) -> Cliente:
     db_cliente = Cliente.model_validate(cliente_data, update={'usuario_id': usuario_id})
     db.add(db_cliente)
     db.commit()
