@@ -1,21 +1,23 @@
-from sqlmodel import create_engine
+from typing import Annotated
+
+from fastapi import Depends
 from sqlalchemy import Engine
+from sqlmodel import Session, create_engine
+
 from app.config import settings
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
-from app.database.models import Usuario
+
 
 def get_engine() -> Engine:
     return create_engine(settings.DATABASE_URL)
 
 
 engine = get_engine()
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 
 
 def get_db():
-    db = SessionLocal()
-    try:
+    with Session(engine) as db:
         yield db
-    finally:
-        db.close()
+
+
+
+SessionDep = Annotated[Session, Depends(get_db)]

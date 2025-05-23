@@ -16,8 +16,39 @@ psycopg = "^3.2.9"
 bcrypt = "^4.3.0"
 python-multipart = "^0.0.20"
 pyjwt = "^2.10.1"
+ruff = "^0.11.11"
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "B008",  # do not perform function calls in argument defaults
+    "B904",  # Allow raising exceptions without from e, for HTTPException
+    'D103',
+    'D100',
+    'D101',
+    'D202',  # Allow blank line after docstring.
+    'A002',  # Allow shadowing 'id'.
+    'D401',  # Exige imperative mood em docstrings, mas falha pro português.
+    'D107',  # Exige docstrings em __inits__.
+    'S603',  # Exige validação na call de subprocess.run.
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**.py" = ["PLR2004", "S101", "ANN201"]
+"app/routes/**.py" = ["PLR2004", "S101", "ANN201"]
+
+[tool.ruff.flake8-quotes]
+inline-quotes = "single"
+
+[tool.ruff.format]
+quote-style = "single"

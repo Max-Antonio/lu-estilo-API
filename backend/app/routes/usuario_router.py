@@ -1,43 +1,41 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from sqlalchemy.orm import Session
-
-from app.services.auth_services import get_current_usuario_ativo
-from app.database.database import get_db
+from app.database.database import SessionDep
 from app.database.models import Usuario
-from app.database.schemas import UsuarioSchema, UsuarioCreate
-from app.services.usuario_services import get_usuarios, create_usuario, get_usuario, delete_usuario
+from app.database.schemas import UsuarioPublic
+from app.services.auth_services import get_current_usuario_ativo
+from app.services.usuario_services import delete_usuario, get_usuario, get_usuarios
 
-usuario_router = APIRouter(
-    tags=['Usuarios']
-)
-
-
-@usuario_router.get('/', response_model=list[UsuarioSchema])
-def usuario_list(db: Session = Depends(get_db)):
-    db_usuarios = get_usuarios(db)
-
-    return db_usuarios
+usuario_router = APIRouter(tags=['Usuarios'])
 
 
-@usuario_router.get('/me', response_model=UsuarioSchema)
-def usuario_list(current_usuario: Usuario = Depends(get_current_usuario_ativo)):
+@usuario_router.get('/')
+def usuarios_list(db: SessionDep) -> list[UsuarioPublic]:
+    return get_usuarios(db)
+
+
+@usuario_router.get('/me')
+def usuario_list(
+    current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
+) -> UsuarioPublic:
     return current_usuario
 
 
-@usuario_router.get('/{usuario_id}', response_model=UsuarioSchema)
-def usuario_info(usuario_id: int, db: Session = Depends(get_db)):
+@usuario_router.get('/{usuario_id}')
+def usuario_info(usuario_id: int, db: SessionDep) -> UsuarioPublic:
     db_usuario = get_usuario(db, usuario_id)
     if not db_usuario:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="usuario não encontrado")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='usuario não encontrado')
     return db_usuario
 
 
 @usuario_router.delete('/{usuario_id}')
-def usuario_delete(usuario_id: int, db: Session = Depends(get_db)):
+def usuario_delete(usuario_id: int, db: SessionDep):
     db_usuario = get_usuario(db, usuario_id)
     if db_usuario is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="usuario não encontrado")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='usuario não encontrado')
 
     delete_usuario(db, db_usuario.id)
-    return {"message": "usuario deleted"}
+    return {'message': 'usuario deleted'}
