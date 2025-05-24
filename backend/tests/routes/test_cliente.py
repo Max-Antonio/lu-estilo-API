@@ -172,7 +172,7 @@ def test_cliente_get(client: TestClient, session: Session):
     assert data['data_criacao'] is not None
 
 
-def test_cliente_put(client: TestClient, session: Session):
+def test_cliente_update(client: TestClient, session: Session):
     usuario = create_usuario('breno@email.com')
     cliente = create_cliente(usuario, '23232323232')
     session.add(cliente)

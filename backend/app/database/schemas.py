@@ -91,3 +91,26 @@ class ClienteUpdate(BaseModel):
 class ClientePublic(ClienteBase):
     id: int
     usuario: 'Usuario'
+
+
+# ------------------------------------------------------------------------------------------------
+# Produto
+
+
+class ProdutoBase(BaseModel):
+    categoria: str
+    preco: float
+    disponivel: bool
+
+
+class ProdutoCreate(ProdutoBase):
+    pass
+
+
+class ProdutoUpdate(ProdutoBase):
+    class Config:
+        from_attributes = True
+
+
+class ProdutoPublic(ProdutoBase):
+    id: int

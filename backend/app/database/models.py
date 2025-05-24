@@ -7,6 +7,8 @@ from sqlmodel import Field, Relationship, SQLModel
 
 
 class Usuario(SQLModel, table=True):
+    __tablename__ = 'usuario'
+
     id: int | None = Field(default=None, primary_key=True)
     nome: str
     email: str
@@ -18,6 +20,8 @@ class Usuario(SQLModel, table=True):
 
 
 class Administrador(SQLModel, table=True):
+    __tablename__ = 'administrador'
+
     id: int | None = Field(default=None, primary_key=True)
     cpf: str = Field(min_length=11, max_length=11, unique=True)
     usuario_id: int = Field(index=True, foreign_key='usuario.id')
@@ -30,6 +34,8 @@ class Administrador(SQLModel, table=True):
 
 
 class Cliente(SQLModel, table=True):
+    __tablename__ = 'cliente'
+
     id: int | None = Field(default=None, primary_key=True)
     cpf: str = Field(min_length=11, max_length=11, unique=True)
     telefone: str | None = None
@@ -39,3 +45,14 @@ class Cliente(SQLModel, table=True):
     usuario_id: int = Field(index=True, foreign_key='usuario.id')
 
     usuario: 'Usuario' = Relationship()
+
+# ------------------------------------------------------------------------------------------------
+# Produto
+
+class Produto(SQLModel, table=True):
+    __tablename__ = 'produto'
+
+    id: int | None = Field(default=None, primary_key=True)
+    categoria: str
+    preco: float
+    disponivel: bool

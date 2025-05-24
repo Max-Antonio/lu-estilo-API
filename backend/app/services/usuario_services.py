@@ -31,7 +31,7 @@ def post_usuario(db: SessionDep, usuario: UsuarioCreate) -> Usuario:
 
 
 def delete_usuario(db: SessionDep, usuario_id: int) -> None:
-    db_usuario = db.exec(select(Usuario).filter(Usuario.id == usuario_id)).first()
+    db_usuario = get_usuario(db, usuario_id)
     if db_usuario:
         db.delete(db_usuario)
         db.commit()

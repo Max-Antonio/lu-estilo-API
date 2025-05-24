@@ -67,7 +67,7 @@ def cliente_get(
 
 
 @cliente_router.put('/{id}')
-def cliente_put(
+def cliente_update(
     id: int,
     cliente_data: ClienteUpdate,
     db: SessionDep,
@@ -80,9 +80,9 @@ def cliente_put(
             detail='cliente não encontrado',
         )
 
-    cliente_update = update_cliente(db, cliente_data, cliente)
+    cliente_new = update_cliente(db, cliente_data, cliente)
 
-    return cliente_update
+    return cliente_new
 
 
 @cliente_router.delete('/{id}')
