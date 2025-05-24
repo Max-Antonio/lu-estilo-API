@@ -1,12 +1,12 @@
 from datetime import date, datetime
-from random import choice, choices, randint
+from random import choice, choices, randint, uniform
 from string import ascii_letters, digits
 
 from fastapi.testclient import TestClient
 from pytz import timezone
 
 from app.config import settings
-from app.database.models import Cliente, Usuario
+from app.database.models import Cliente, Produto, Usuario
 from app.utils.auth_utils import get_password_hash
 
 
@@ -24,8 +24,12 @@ def rand_bool() -> bool:
     return bool(randint(0, 1))
 
 
-def rand_int(a: int = 0, b: int = 50):
+def rand_int(a: int = 0, b: int = 100):
     return randint(a, b)
+
+
+def rand_float(a: float = 0, b: float = 100.0):
+    return uniform(a, b)
 
 
 def rand_cpf() -> str:
@@ -74,6 +78,12 @@ def create_cliente(usuario: Usuario, cpf: str = rand_cpf()):
         data_nascimento=rand_date(),
         usuario=usuario,
     )
+
+
+def create_produto(
+    categoria: str = rand_str(), preco: float = rand_float(), disponivel: bool = rand_bool(),
+):
+    return Produto(categoria=categoria, preco=preco, disponivel=disponivel)
 
 
 def get_token(usuario: Usuario, client: TestClient):

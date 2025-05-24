@@ -8,7 +8,7 @@ from app.database.database import engine
 from app.routes.auth_router import auth_router
 from app.routes.cliente_router import cliente_router
 from app.routes.usuario_router import usuario_router
-
+from app.routes.produto_router import produto_router
 
 async def init_db() -> None:
     SQLModel.metadata.create_all(engine)
@@ -26,3 +26,4 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(auth_router, prefix='/auth')
 app.include_router(usuario_router, prefix='/usuarios')
 app.include_router(cliente_router, prefix='/clients')
+app.include_router(produto_router, prefix='/products')
