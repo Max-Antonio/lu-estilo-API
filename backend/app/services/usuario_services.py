@@ -22,6 +22,7 @@ def post_usuario(db: SessionDep, usuario: UsuarioCreate) -> Usuario:
     db_usuario = Usuario(
         email=str(usuario.email),
         nome=usuario.nome,
+        role=usuario.role,
         senha=get_password_hash(usuario.senha),
     )
     db.add(db_usuario)

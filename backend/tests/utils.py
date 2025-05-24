@@ -8,7 +8,7 @@ from pytz import timezone
 from app.config import settings
 from app.database.models import Cliente, Produto, Usuario
 from app.utils.auth_utils import get_password_hash
-
+from app.database.enums import Role
 
 def rand_str(len: int = 20, word_set: list[str] | None = None) -> str:
     if word_set is not None:
@@ -66,6 +66,7 @@ def create_usuario(email: str = rand_email(), senha: str | None = None):
         nome=rand_str(),
         email=email,
         senha=get_password_hash(senha or settings.DEFAULT_TEST_PASSWORD),
+        role=Role.USER,
     )
 
 

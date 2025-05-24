@@ -2,6 +2,7 @@ from datetime import date, datetime
 
 from pydantic import BaseModel, EmailStr
 
+from app.database.enums import Role
 from app.database.models import Usuario
 
 # ------------------------------------------------------------------------------------------------
@@ -34,6 +35,7 @@ class TokenResponse(BaseModel):
 class UsuarioBase(BaseModel):
     nome: str
     email: EmailStr
+    role: Role
 
 
 class UsuarioCreate(UsuarioBase):
@@ -45,23 +47,6 @@ class UsuarioPublic(UsuarioBase):
 
     class Config:
         from_attributes = True
-
-
-# ------------------------------------------------------------------------------------------------
-# Administrador
-
-
-class AdministradorBase(BaseModel):
-    cpf: str
-
-
-class AdministradorCreate(AdministradorBase, UsuarioCreate):
-    pass
-
-
-class AdministradorPublic(AdministradorBase):
-    id: int
-    usuario: 'Usuario'
 
 
 # ------------------------------------------------------------------------------------------------

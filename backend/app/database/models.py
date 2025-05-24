@@ -2,6 +2,8 @@ from datetime import date, datetime
 
 from sqlmodel import Field, Relationship, SQLModel
 
+from app.database.enums import Role
+
 # ------------------------------------------------------------------------------------------------
 # Usuario
 
@@ -13,21 +15,7 @@ class Usuario(SQLModel, table=True):
     nome: str
     email: str
     senha: str
-
-
-# ------------------------------------------------------------------------------------------------
-# Adminstrador
-
-
-class Administrador(SQLModel, table=True):
-    __tablename__ = 'administrador'
-
-    id: int | None = Field(default=None, primary_key=True)
-    cpf: str = Field(min_length=11, max_length=11, unique=True)
-    usuario_id: int = Field(index=True, foreign_key='usuario.id')
-
-    usuario: 'Usuario' = Relationship()
-
+    role: Role = Field(default='user')
 
 # ------------------------------------------------------------------------------------------------
 # Cliente
