@@ -8,6 +8,7 @@ from pydantic import ValidationError
 
 from app.config import settings
 from app.database.database import SessionDep
+from app.database.enums import Role
 from app.database.models import Usuario
 from app.database.schemas import TokenData
 from app.services.usuario_services import get_usuario_by_email
@@ -81,3 +82,7 @@ def verify_token(token: str):
         return payload
     except jwt.JWTError:
         return None
+
+def valida_admin(usuario: Usuario) -> None:
+    if usuario.role != Role.ADMIN:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, 'Usuário não autorizado a usar esta rota')

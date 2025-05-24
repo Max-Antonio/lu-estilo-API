@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from app.database.database import SessionDep
 from app.database.models import Usuario
 from app.database.schemas import ProdutoCreate, ProdutoPublic, ProdutoUpdate
-from app.services.auth_services import get_current_usuario_ativo
+from app.services.auth_services import get_current_usuario_ativo, valida_admin
 from app.services.produto_services import get_produto, get_produtos, post_produto, update_produto
 
 produto_router = APIRouter(tags=['Produtos'])
@@ -31,6 +31,7 @@ def produto_post(
     db: SessionDep,
     current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> ProdutoPublic:
+    valida_admin(current_usuario)
     produto = post_produto(db, produto_data)
     return produto
 
@@ -56,6 +57,7 @@ def produto_update(
     db: SessionDep,
     current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> ProdutoPublic:
+    valida_admin(current_usuario)
     produto = get_produto(db, id)
     if not produto:
         raise HTTPException(
@@ -72,6 +74,7 @@ def produto_update(
 def produto_delete(id: int,
     db: SessionDep,
     current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)]) -> None:
+    valida_admin(current_usuario)
     produto = get_produto(db, id)
     if not produto:
         raise HTTPException(

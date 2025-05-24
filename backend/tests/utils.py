@@ -60,13 +60,13 @@ def rand_datetime() -> datetime:
     )
 
 
-def create_usuario(email: str = rand_email(), senha: str | None = None):
+def create_usuario(email: str = rand_email(), senha: str | None = None, role: Role = Role.ADMIN):
     """Email não é randomizado para evitar a possibilidade de usuarios com o mesmo email."""
     return Usuario(
         nome=rand_str(),
         email=email,
         senha=get_password_hash(senha or settings.DEFAULT_TEST_PASSWORD),
-        role=Role.USER,
+        role=role,
     )
 
 

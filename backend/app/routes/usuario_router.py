@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.database.database import SessionDep
 from app.database.models import Usuario
 from app.database.schemas import UsuarioPublic
-from app.services.auth_services import get_current_usuario_ativo
+from app.services.auth_services import get_current_usuario_ativo, valida_admin
 from app.services.usuario_services import delete_usuario, get_usuario, get_usuarios
 
 usuario_router = APIRouter(tags=['Usuarios'])
@@ -43,6 +43,7 @@ def usuario_delete(
     db: SessionDep,
     current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ):
+    valida_admin(current_usuario)
     db_usuario = get_usuario(db, usuario_id)
     if db_usuario is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='usuario não encontrado')

@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from app.database.database import SessionDep
 from app.database.models import Usuario
 from app.database.schemas import ClienteCreate, ClientePublic, ClienteUpdate
-from app.services.auth_services import get_current_usuario_ativo
+from app.services.auth_services import get_current_usuario_ativo, valida_admin
 from app.services.cliente_services import (
     get_cliente,
     get_clientes,
@@ -36,6 +36,7 @@ def cliente_post(
     db: SessionDep,
     current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> ClientePublic:
+    valida_admin(current_usuario)
     usuario_existente = get_usuario_by_email(db, cliente_data.email)
     if usuario_existente:
         raise HTTPException(
@@ -73,6 +74,7 @@ def cliente_update(
     db: SessionDep,
     current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> ClientePublic:
+    valida_admin(current_usuario)
     cliente = get_cliente(db, id)
     if not cliente:
         raise HTTPException(
@@ -91,6 +93,7 @@ def cliente_delete(
     db: SessionDep,
     current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> None:
+    valida_admin(current_usuario)
     cliente = get_cliente(db, id)
     if not cliente:
         raise HTTPException(
