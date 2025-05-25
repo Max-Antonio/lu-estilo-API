@@ -8,7 +8,9 @@ from app.database.enums import PedidoStatus
 from app.database.models import Usuario
 from app.database.schemas import PedidoCreate, PedidoPublic, PedidoUpdate
 from app.services.auth_services import get_current_usuario_ativo, valida_admin
+from app.services.cliente_services import get_cliente
 from app.services.pedido_services import get_pedido, get_pedidos, post_pedido, update_pedido
+from app.services.produto_services import get_produto
 
 pedido_router = APIRouter(tags=['Pedidos'])
 
@@ -27,7 +29,7 @@ def pedido_list(
         Query(description='Filtro por id de pedido'),
     ] = None,
     id_cliente: Annotated[
-        PedidoStatus | None,
+        int | None,
         Query(description='Filtro por id de cliente'),
     ] = None,
     db: SessionDep,
@@ -53,6 +55,23 @@ def pedido_post(
     current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> PedidoPublic:
     valida_admin(current_usuario)
+    #valida cliente
+    cliente = get_cliente(db, pedido_data.cliente_id)
+    if not cliente:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f'cliente com o id {pedido_data.cliente_id} não encontrado',
+        )
+
+    #valida produtos
+    for produto_id in pedido_data.produtos_id:
+        produto = get_produto(db, produto_id)
+        if not produto:
+            raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f'produto com o id {produto_id} não encontrado',
+        )
+
     return post_pedido(db, pedido_data)
 
 

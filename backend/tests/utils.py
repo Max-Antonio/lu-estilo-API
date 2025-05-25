@@ -6,8 +6,8 @@ from fastapi.testclient import TestClient
 from pytz import timezone
 
 from app.config import settings
-from app.database.enums import Role
-from app.database.models import Cliente, Produto, Usuario
+from app.database.enums import PedidoStatus, Role
+from app.database.models import Cliente, Pedido, Produto, Usuario
 from app.utils.auth_utils import get_password_hash
 
 
@@ -89,6 +89,18 @@ def create_produto(
     secao: str = rand_str(),
 ):
     return Produto(categoria=categoria, preco=preco, disponivel=disponivel, secao=secao)
+
+
+def create_pedido(
+    produtos: list[Produto],
+    cliente: Cliente,
+    status: PedidoStatus = PedidoStatus.confirmado,
+):
+    return Pedido(
+        cliente=cliente,
+        status=status,
+        produtos=produtos,
+    )
 
 
 def get_token(usuario: Usuario, client: TestClient):

@@ -6,6 +6,7 @@ from app.database.database import SessionDep
 from app.database.enums import PedidoStatus
 from app.database.models import Pedido, PedidoProduto, Produto
 from app.database.schemas import PedidoCreate, PedidoUpdate
+from app.services.produto_services import get_produto
 
 
 def get_pedidos(
@@ -46,10 +47,20 @@ def get_pedido(db: SessionDep, pedido_id: int) -> Pedido:
     return db.exec(select(Pedido).filter(Pedido.id == pedido_id)).first()
 
 def post_pedido(db: SessionDep, pedido_data: PedidoCreate) -> Pedido:
+    produtos_id = pedido_data.produtos_id
     db_pedido = Pedido.model_validate(pedido_data)
     db.add(db_pedido)
     db.commit()
     db.refresh(db_pedido)
+
+    # associa os produtos com o pedido
+    for produto_id in produtos_id:
+        produto = get_produto(db, produto_id)
+        pedido_produto = PedidoProduto(pedido_id=db_pedido.id, produto_id=produto.id)
+        db.add(pedido_produto)
+
+    db.commit()
+
     return db_pedido
 
 def update_pedido(db: SessionDep, pedido_data: PedidoUpdate, pedido: Pedido) -> Pedido:

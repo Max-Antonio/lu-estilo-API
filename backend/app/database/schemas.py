@@ -102,14 +102,13 @@ class ProdutoPublic(ProdutoBase):
 # Pedido
 
 class PedidoBase(BaseModel):
-    id_produtos: list[int]
-    id_cliente: int
+    cliente_id: int
     status: PedidoStatus | None = None
-    data_inicio: datetime | None = None
-    data_fim:  datetime | None = None
+    data_inicio: date | None = None
+    data_fim:  date | None = None
 
 class PedidoCreate(PedidoBase):
-    pass
+    produtos_id: list[int]
 
 class PedidoUpdate(PedidoBase):
     pass
