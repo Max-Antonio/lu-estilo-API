@@ -22,6 +22,23 @@ def produto_list(
     db: SessionDep,
     current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> list[ProdutoPublic]:
+    """Lista os produtos registrados no sistema.
+
+    Args:
+    ----
+        skip (int): número de itens da lista a serem pulados.
+        limit (int): número limite de itens da lista a serem retornados.
+        categoria (str): categoria do produto (camisa, agasalho, meia etc.)
+        preco (int): preco do produto.
+        disponivel (bool): disponibilidade do produto.
+        db (SessionDep): Session do banco de dados.
+        current_usuario (Usuario): Usuário atual logado.
+
+    Returns:
+    -------
+        list[ProdutoPublic]: lista com informações dos produtos.
+
+    """
     return get_produtos(db, skip, limit, categoria, preco, disponivel)
 
 
@@ -31,6 +48,19 @@ def produto_post(
     db: SessionDep,
     current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> ProdutoPublic:
+    """Registra um produto no sistema.
+
+    Args:
+    ----
+        produto_data (ProdutoCreate): schema com informações do produto.
+        db (SessionDep): Session do banco de dados.
+        current_usuario (Usuario): Usuário atual logado.
+
+    Returns:
+    -------
+        ProdutoCreate: informações do produto registrado.
+
+    """
     valida_admin(current_usuario)
     return post_produto(db, produto_data)
 
@@ -39,6 +69,19 @@ def produto_post(
 def produto_get(
     id: int, db: SessionDep, current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> ProdutoPublic:
+    """Pega informações de um produto dado seu id.
+
+    Args:
+    ----
+        id (int): id do produto.
+        db (SessionDep): Session do banco de dados.
+        current_usuario (Usuario): Usuário atual logado.
+
+    Returns:
+    -------
+        ProdutoPublic: informações do produto
+
+    """
     produto = get_produto(db, id)
     if not produto:
         raise HTTPException(
@@ -56,6 +99,20 @@ def produto_update(
     db: SessionDep,
     current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> ProdutoPublic:
+    """Atualiza informações do produto.
+
+    Args:
+    ----
+        id (int): id do produto.
+        pedido_data (int): schema com as novas informações do produto a serem atualizadas.
+        db (SessionDep): Session do banco de dados.
+        current_usuario (Usuario): Usuário atual logado.
+
+    Returns:
+    -------
+        ProdutoPublic: informações do produto atualizadas
+
+    """
     valida_admin(current_usuario)
     produto = get_produto(db, id)
     if not produto:
@@ -71,6 +128,19 @@ def produto_update(
 def produto_delete(id: int,
     db: SessionDep,
     current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)]) -> None:
+    """Deleta um produto do sistema dado seu id.
+
+    Args:
+    ----
+        id (int): id do produto.
+        db (SessionDep): Session do banco de dados.
+        current_usuario (Usuario): Usuário atual logado.
+
+    Returns:
+    -------
+        Mensagem de confirmação que o produto foi deletado
+
+    """
     valida_admin(current_usuario)
     produto = get_produto(db, id)
     if not produto:

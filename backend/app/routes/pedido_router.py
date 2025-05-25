@@ -35,6 +35,26 @@ def pedido_list(
     db: SessionDep,
     current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> list[PedidoPublic]:
+    """Lista os pedidos registrados no sistema.
+
+    Args:
+    ----
+        skip (int): número de itens da lista a serem pulados.
+        limit (int): número limite de itens da lista a serem retornados.
+        data_inicio (date): data de início par os pedidos.
+        data_fim (date): data de fim dos pedidos.
+        secao_produtos (str): secao de produtos.
+        id_pedido (int): id do pedido.
+        pedido_status (PedidoStatus): status do pedido (pendente, confirmado, cancelado etc.)
+        id_cliente (int): id do cliente que fez o pedido.
+        db (SessionDep): Session do banco de dados.
+        current_usuario (Usuario): Usuário atual logado.
+
+    Returns:
+    -------
+        list[PedidoPublic]: lista com informações dos pedidos
+
+    """
     return get_pedidos(
         db,
         skip,
@@ -54,6 +74,19 @@ def pedido_post(
     db: SessionDep,
     current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> PedidoPublic:
+    """Registra um pedido no sistema e associa os produtos e cliente ao pedido.
+
+    Args:
+    ----
+        pedido_data (PedidoCreate): schema com informações do pedido.
+        db (SessionDep): Session do banco de dados.
+        current_usuario (Usuario): Usuário atual logado.
+
+    Returns:
+    -------
+        PedidoCreate: informações do pedido registrado.
+
+    """
     valida_admin(current_usuario)
     #valida cliente
     cliente = get_cliente(db, pedido_data.cliente_id)
@@ -79,6 +112,19 @@ def pedido_post(
 def pedido_get(
     id: int, db: SessionDep, current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> PedidoPublic:
+    """Pega informações de um pedido dado seu id.
+
+    Args:
+    ----
+        id (int): id do pedido.
+        db (SessionDep): Session do banco de dados.
+        current_usuario (Usuario): Usuário atual logado.
+
+    Returns:
+    -------
+        PedidoPublic: informações do pedido.
+
+    """
     pedido = get_pedido(db, id)
     if not pedido:
         raise HTTPException(
@@ -96,6 +142,20 @@ def pedido_update(
     db: SessionDep,
     current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> PedidoPublic:
+    """Atualiza informações do pedido.
+
+    Args:
+    ----
+        id (int): id do pedido.
+        pedido_data (int): schema com as novas informações do pedido a serem atualizadas.
+        db (SessionDep): Session do banco de dados.
+        current_usuario (Usuario): Usuário atual logado.
+
+    Returns:
+    -------
+        PedidoPublic: informações do pedido atualizadas.
+
+    """
     valida_admin(current_usuario)
     pedido = get_pedido(db, id)
     if not pedido:
@@ -111,6 +171,19 @@ def pedido_update(
 def pedido_delete(
     id: int, db: SessionDep, current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ):
+    """Deleta um pedido do sistema dado seu id.
+
+    Args:
+    ----
+        id (int): id do pedido.
+        db (SessionDep): Session do banco de dados.
+        current_usuario (Usuario): Usuário atual logado.
+
+    Returns:
+    -------
+        Mensagem de confirmação que o pedido foi deletado.
+
+    """
     valida_admin(current_usuario)
     pedido = get_pedido(db, id)
     if not pedido:

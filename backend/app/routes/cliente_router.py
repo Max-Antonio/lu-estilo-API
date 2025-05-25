@@ -27,6 +27,23 @@ def cliente_list(
     db: SessionDep,
     current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> list[ClientePublic]:
+    """Lista os clientes registrados no sistema.
+
+    Args:
+    ----
+        skip (int): número de itens da lista a serem pulados.
+        limit (int): número limite de itens da lista a serem retornados.
+        nome: (str): nome do cliente.
+        email: (str): email do cliente.
+        db (SessionDep): Session do banco de dados.
+        current_usuario (Usuario): Usuário atual logado.
+
+    Returns:
+    -------
+        list[ClientePublic]: lista com informações dos clientes.
+
+
+    """
     return get_clientes(db, skip, limit, nome, email)
 
 
@@ -36,6 +53,19 @@ def cliente_post(
     db: SessionDep,
     current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> ClientePublic:
+    """Registra um cliente no sistema e associa um usuário ao cliente.
+
+    Args:
+    ----
+        cliente_data (ClienteCreate): schema com informações do cliente.
+        db (SessionDep): Session do banco de dados.
+        current_usuario (Usuario): Usuário atual logado.
+
+    Returns:
+    -------
+        ClienteCreate: informações do cliente registrado.
+
+    """
     valida_admin(current_usuario)
     usuario_existente = get_usuario_by_email(db, cliente_data.email)
     if usuario_existente:
@@ -55,6 +85,19 @@ def cliente_get(
     db: SessionDep,
     current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> ClientePublic:
+    """Pega informações de um cliente dado seu id.
+
+    Args:
+    ----
+        id (int): id do cliente.
+        db (SessionDep): Session do banco de dados.
+        current_usuario (Usuario): Usuário atual logado.
+
+    Returns:
+    -------
+        ClientePublic: informações do cliente.
+
+    """
     cliente = get_cliente(db, id)
     if not cliente:
         raise HTTPException(
@@ -72,6 +115,21 @@ def cliente_update(
     db: SessionDep,
     current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> ClientePublic:
+    """Atualiza informações do cliente.
+
+    Args:
+    ----
+        id (int): id do cliente.
+        cliente_data (int): schema com as novas informações do cliente a serem atualizadas.
+        db (SessionDep): Session do banco de dados.
+        current_usuario (Usuario): Usuário atual logado.
+
+    Returns:
+    -------
+        ClientePublic: informações do cliente atualizadas.
+
+
+    """
     valida_admin(current_usuario)
     cliente = get_cliente(db, id)
     if not cliente:
@@ -89,6 +147,19 @@ def cliente_delete(
     db: SessionDep,
     current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> None:
+    """Deleta um cliente do sistema dado seu id.
+
+    Args:
+    ----
+        id (int): id do cliente.
+        db (SessionDep): Session do banco de dados.
+        current_usuario (Usuario): Usuário atual logado.
+
+    Returns:
+    -------
+        Mensagem de confirmação que o cliente foi deletado.
+
+    """
     valida_admin(current_usuario)
     cliente = get_cliente(db, id)
     if not cliente:

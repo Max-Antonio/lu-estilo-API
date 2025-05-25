@@ -30,6 +30,18 @@ async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: SessionDep,
 ) -> Token:
+    """Retorna o token de autenticação.
+
+    Args:
+    ----
+        form_data (OAuth2PasswordRequestForm): formulário de login com email e senha
+        db (SessionDep): Session do banco de dados.
+
+    Returns:
+    -------
+        Token: token de autenticação
+
+    """
     usuario = autenticar_usuario(form_data.username, form_data.password, db)
     if not usuario:
         raise HTTPException(
@@ -46,25 +58,48 @@ async def login_for_access_token(
     return Token(access_token=access_token, token_type='bearer')
 
 
-@auth_router.post('/register', response_model=UsuarioPublic)
-def usuario_post(usuario: UsuarioCreate, db: SessionDep):
+@auth_router.post('/register')
+def usuario_post(usuario: UsuarioCreate, db: SessionDep) -> UsuarioPublic:
+    """Registra um usuário no sistema.
+
+    Args:
+    ----
+        usuario (UsuarioCreate): schema com as informações do usuário
+        db (SessionDep): Session do banco de dados
+
+    Returns:
+    -------
+        UsuarioPublic: informações do usuário registrado
+
+    """
     return post_usuario(db, usuario)
 
 
 @auth_router.post('/refresh-token')
-def refresh_token(token_data: TokenRefreshRequest):
+def refresh_token(token_data: TokenRefreshRequest) -> TokenResponse:
+    """Retorna o refreshed token.
+
+    Args:
+    ----
+        token_data (TokenRefreshRequest): Requisição do refresh de Token.
+
+    Returns:
+    -------
+        Token: token de autenticação refreshed
+
+    """
     payload = verify_token(token_data.refresh_token)
     if not payload:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Invalid refresh token',
+            detail='Refresh token inválido',
         )
 
     user_id = payload.get('sub')
     if user_id is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Invalid token payload',
+            detail='Token payload inválido',
         )
 
     new_access_token = create_access_token({'sub': user_id})
