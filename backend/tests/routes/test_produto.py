@@ -122,6 +122,7 @@ def test_produto_post(client: TestClient, session: Session):
         'categoria': 'top',
         'preco': 16.99,
         'disponivel': True,
+        'secao': 'feminina',
     }
 
     response = client.post(
@@ -179,6 +180,7 @@ def test_produto_update(client: TestClient, session: Session):
         'categoria': 'boina',
         'preco': 18.10,
         'disponivel': False,
+        'secao': 'masculina',
     }
 
     response = client.put(

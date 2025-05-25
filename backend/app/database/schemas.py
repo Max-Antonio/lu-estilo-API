@@ -1,9 +1,9 @@
 from datetime import date, datetime
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr
 
-from app.database.enums import Role
-from app.database.models import Usuario
+from app.database.enums import PedidoStatus, Role
+from app.database.models import Cliente, Produto, Usuario
 
 # ------------------------------------------------------------------------------------------------
 # Token
@@ -45,8 +45,7 @@ class UsuarioCreate(UsuarioBase):
 class UsuarioPublic(UsuarioBase):
     id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes = True)
 
 
 # ------------------------------------------------------------------------------------------------
@@ -69,8 +68,7 @@ class ClienteUpdate(BaseModel):
     telefone: str | None = None
     endereco: str | None = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes = True)
 
 
 class ClientePublic(ClienteBase):
@@ -84,6 +82,7 @@ class ClientePublic(ClienteBase):
 
 class ProdutoBase(BaseModel):
     categoria: str
+    secao: str
     preco: float
     disponivel: bool
 
@@ -93,9 +92,29 @@ class ProdutoCreate(ProdutoBase):
 
 
 class ProdutoUpdate(ProdutoBase):
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes = True)
 
 
 class ProdutoPublic(ProdutoBase):
     id: int
+
+# ------------------------------------------------------------------------------------------------
+# Pedido
+
+class PedidoBase(BaseModel):
+    id_produtos: list[int]
+    id_cliente: int
+    status: PedidoStatus | None = None
+    data_inicio: datetime | None = None
+    data_fim:  datetime | None = None
+
+class PedidoCreate(PedidoBase):
+    pass
+
+class PedidoUpdate(PedidoBase):
+    pass
+
+class PedidoPublic(PedidoBase):
+    id: int
+    cliente: 'Cliente'
+    produtos: list['Produto']

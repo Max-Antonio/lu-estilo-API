@@ -84,5 +84,5 @@ def verify_token(token: str):
         return None
 
 def valida_admin(usuario: Usuario) -> None:
-    if usuario.role != Role.ADMIN:
+    if usuario.role != Role.admin:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, 'Usuário não autorizado a usar esta rota')

@@ -46,9 +46,7 @@ def cliente_post(
 
     usuario = post_usuario(db, cliente_data)
 
-    cliente = post_cliente(db, usuario.id, cliente_data)
-
-    return cliente
+    return post_cliente(db, usuario.id, cliente_data)
 
 
 @cliente_router.get('/{id}')
@@ -82,9 +80,7 @@ def cliente_update(
             detail='cliente não encontrado',
         )
 
-    cliente_new = update_cliente(db, cliente_data, cliente)
-
-    return cliente_new
+    return update_cliente(db, cliente_data, cliente)
 
 
 @cliente_router.delete('/{id}')

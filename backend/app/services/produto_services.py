@@ -30,8 +30,8 @@ def get_produto(db: SessionDep, produto_id: int) -> Produto:
     return db.exec(select(Produto).filter(Produto.id == produto_id)).first()
 
 
-def post_produto(db: SessionDep, produto: ProdutoCreate) -> Produto:
-    db_produto = Produto.model_validate(produto)
+def post_produto(db: SessionDep, produto_data: ProdutoCreate) -> Produto:
+    db_produto = Produto.model_validate(produto_data)
     db.add(db_produto)
     db.commit()
     db.refresh(db_produto)

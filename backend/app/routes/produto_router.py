@@ -16,9 +16,9 @@ def produto_list(
     *,
     skip: int = 0,
     limit: int | None = None,
-    categoria: Annotated[str | None, Query(description='Filtro por nome')] = None,
-    preco: Annotated[float | None, Query(description='Filtro por nome')] = None,
-    disponivel: Annotated[bool | None, Query(description='Filtro por email')] = None,
+    categoria: Annotated[str | None, Query(description='Filtro por categoria')] = None,
+    preco: Annotated[float | None, Query(description='Filtro por preco')] = None,
+    disponivel: Annotated[bool | None, Query(description='Filtro por disponibilidade')] = None,
     db: SessionDep,
     current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> list[ProdutoPublic]:
@@ -32,8 +32,7 @@ def produto_post(
     current_usuario: Annotated[Usuario, Depends(get_current_usuario_ativo)],
 ) -> ProdutoPublic:
     valida_admin(current_usuario)
-    produto = post_produto(db, produto_data)
-    return produto
+    return post_produto(db, produto_data)
 
 
 @produto_router.get('/{id}')
@@ -65,9 +64,7 @@ def produto_update(
             detail='produto não encontrado',
         )
 
-    produto_new = update_produto(db, produto_data, produto)
-
-    return produto_new
+    return update_produto(db, produto_data, produto)
 
 
 @produto_router.delete('/{id}')

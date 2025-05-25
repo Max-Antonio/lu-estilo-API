@@ -6,9 +6,10 @@ from fastapi.testclient import TestClient
 from pytz import timezone
 
 from app.config import settings
+from app.database.enums import Role
 from app.database.models import Cliente, Produto, Usuario
 from app.utils.auth_utils import get_password_hash
-from app.database.enums import Role
+
 
 def rand_str(len: int = 20, word_set: list[str] | None = None) -> str:
     if word_set is not None:
@@ -60,7 +61,7 @@ def rand_datetime() -> datetime:
     )
 
 
-def create_usuario(email: str = rand_email(), senha: str | None = None, role: Role = Role.ADMIN):
+def create_usuario(email: str = rand_email(), senha: str | None = None, role: Role = Role.admin):
     """Email não é randomizado para evitar a possibilidade de usuarios com o mesmo email."""
     return Usuario(
         nome=rand_str(),
@@ -82,9 +83,12 @@ def create_cliente(usuario: Usuario, cpf: str = rand_cpf()):
 
 
 def create_produto(
-    categoria: str = rand_str(), preco: float = rand_float(), disponivel: bool = rand_bool(),
+    categoria: str = rand_str(),
+    preco: float = rand_float(),
+    disponivel: bool = rand_bool(),
+    secao: str = rand_str(),
 ):
-    return Produto(categoria=categoria, preco=preco, disponivel=disponivel)
+    return Produto(categoria=categoria, preco=preco, disponivel=disponivel, secao=secao)
 
 
 def get_token(usuario: Usuario, client: TestClient):
