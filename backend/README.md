@@ -12,7 +12,7 @@ $ poetry install
 # Executa comandos no venv.
 $ poetry run uvicorn app.main:app --reload
 ```
-## testes
+## Testes
 
 Para executar os testes basta executar o comando pytest na pasta backend.
 ```sh
