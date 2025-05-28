@@ -2,9 +2,15 @@ from enum import Enum
 
 
 class Role(str, Enum):
+    """O nível de acesso de um usuário no sistema.
+
+    admins possuem acesso total e users possuem acesso limitado as rotas.
+
+
+    """
+
     admin = 'admin'
     user = 'user'
-
 
 class PedidoStatus(str, Enum):
     pendente = 'pedido criado, mas não confirmado pelo cliente'
